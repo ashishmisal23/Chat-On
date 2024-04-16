@@ -1,7 +1,0 @@
-Install Packages in backend
-
-1. npm install express dotenv cookie-parser bcryptjs mongoose socket.io jsonwebtoken  
-
-2. npm i nodemon --save-dev
-
-3. 

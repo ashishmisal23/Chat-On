@@ -69,7 +69,9 @@ const login = async (req, res) => {
         if (!user || !isPasswordCorrect) {
             return res.status(400).json({ error: "Invalid Credentials." })
         }
+
         await generateTokenAndSetCookie(user._id, res);
+
         res.status(200).json({
             message: "User is Logged in Successfully...",
             _id: user._id,
@@ -86,7 +88,14 @@ const login = async (req, res) => {
 };
 
 const logout = (req, res) => {
-    res.send("logout")
+    try {
+        res.cookie("jwt", "", { maxAge: 0 })
+        res.status(200).json({ message: "Log out Successfully..." })
+    }
+    catch (error) {
+        console.log("Error in Logout Controller....", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 
 };
 

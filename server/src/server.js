@@ -1,22 +1,28 @@
-dotenv.config();
-import express from "express";
-import dotenv from "dotenv";
+import express from 'express';
+import { WebSocketServer } from 'ws';
+import http from 'http';
 
-import authRoutes from "./routes/authRoutes.js";
-import connectDb from "./db/connectDB.js";
+const app = express();
+app.use(express.static('public'));
 
-const app = express()
-const PORT = process.env.PORT || 5000;
+const server = http.createServer(app);
 
+const wss = new WebSocketServer({ server });
 
-app.use(express.json());    //middleware
+wss.on('connection', socket => {
+    console.log('client connected');
 
-app.use("/api/auth", authRoutes);
+    socket.on('message', data => {
+        // broadcast to everyone else
+        wss.clients.forEach(client => {
+            if (client !== socket && client.readyState === client.OPEN) {
+                client.send(data);
+            }
+        });
+    });
 
-
-
-app.listen(PORT, async () => {
-    console.log(`Server is Running on port ${PORT}`)
-    connectDb();
+    socket.on('close', () => console.error('client disconnected'));
 });
 
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`Server up on http://localhost:${PORT}`));
